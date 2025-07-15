@@ -1,6 +1,8 @@
 package org.ufpi.projects.monitor;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,7 +19,7 @@ public class Main {
         executionRequest.setVariables(variables);
         executionRequest.setExecutionType(ExecutionRequest.ExecutionType.STATIONARY_SIMULATION);
         executionRequest.setModelType(ExecutionRequest.ModelType.SPN);
-        executionRequest.setError(0.01);
+        executionRequest.setError(0.1);
         executionRequest.setMaxExecutionTimeInMinutes(0);
         executionRequest.setMetrics(Arrays.asList("Metric0"));
 
@@ -30,7 +32,7 @@ public class Main {
         executionRequest2.setVariables(variables2);
         executionRequest2.setExecutionType(ExecutionRequest.ExecutionType.STATIONARY_SIMULATION);
         executionRequest2.setModelType(ExecutionRequest.ModelType.SPN);
-        executionRequest2.setError(0.01);
+        executionRequest2.setError(0.1);
         executionRequest2.setMaxExecutionTimeInMinutes(0);
         executionRequest2.setMetrics(Arrays.asList("Metric0"));
 
@@ -38,8 +40,7 @@ public class Main {
         List<ExecutionRequest> batch1 = Arrays.asList(executionRequest,executionRequest2);
 
 
-//        producer.executeBatchAsync(batch1, "batchA", "fila.fast");
-//        producer.executeBatchAsync(batch2, "batchB", "fila.slow");
+
 
         Map<ExecutionRequest,ExecutionResponse> responses =    producer.sendRequestsAndAwait(batch1,"fila.fast");
         for (ExecutionRequest executionRequest1: batch1) {
@@ -47,6 +48,9 @@ public class Main {
             System.out.println(executionRequest1.getConfigId()+" -- "+responses.get(executionRequest1).getMetricValues().get("Metric0"));
         }
 
+        //assincrono
+//        producer.executeBatchAsync(batch1, "batchA", "fila.fast");
+//        producer.executeBatchAsync(batch2, "batchB", "fila.slow");
 
 //        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
 //            System.out.println("Status atual dos batches:");
