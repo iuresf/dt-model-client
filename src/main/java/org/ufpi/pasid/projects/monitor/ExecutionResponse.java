@@ -1,4 +1,4 @@
-package org.ufpi.projects.monitor;
+package org.ufpi.pasid.projects.monitor;
 
 import java.util.HashMap;
 

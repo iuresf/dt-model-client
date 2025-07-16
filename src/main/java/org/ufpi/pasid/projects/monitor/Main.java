@@ -1,8 +1,6 @@
-package org.ufpi.projects.monitor;
+package org.ufpi.pasid.projects.monitor;
 
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {

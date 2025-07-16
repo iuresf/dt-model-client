@@ -1,9 +1,8 @@
-package org.ufpi.projects.monitor;
+package org.ufpi.pasid.projects.monitor;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.*;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
