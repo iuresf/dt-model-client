@@ -12,6 +12,8 @@ public class ProducerWithReplyTo {
     private static final String HOST = System.getenv().getOrDefault("RABBITMQ_HOST", "localhost");
     private static final String USER = System.getenv().getOrDefault("RABBITMQ_USER", "guest");
     private static final String PASS = System.getenv().getOrDefault("RABBITMQ_PASS", "guest");
+    private static final int PORT = Integer.parseInt(System.getenv().getOrDefault("RABBITMQ_PORT", "5672"));
+
 
     private static final Gson gson = new Gson();
     public final Map<String, BatchResult> batchResults = new ConcurrentHashMap<>();
@@ -39,6 +41,7 @@ public class ProducerWithReplyTo {
             factory.setHost(HOST);
             factory.setUsername(USER);
             factory.setPassword(PASS);
+            factory.setPort(PORT);
 
             try (Connection connection = factory.newConnection();
                  Channel channel = connection.createChannel()) {

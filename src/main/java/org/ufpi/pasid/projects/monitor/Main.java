@@ -7,32 +7,34 @@ public class Main {
         ProducerWithReplyTo producer = new ProducerWithReplyTo();
 
 
-        String model = "src/main/resources/testModels/testSPN.xml";
+        String model = "src/main/resources/testModels/autoscaling_pasidvalidator.xml";
         HashMap<String,Double> variables= new HashMap<>();
-        variables.put("def1",1.0);
-        variables.put("def2",50.0);
+        variables.put("EXTRA_CAP",10.);
+        variables.put("C",70.0);
+        variables.put("AD",6.0);
         ExecutionRequest executionRequest= new ExecutionRequest();
         executionRequest.setConfigId("configA");
         executionRequest.setModel(model);
         executionRequest.setVariables(variables);
         executionRequest.setExecutionType(ExecutionRequest.ExecutionType.STATIONARY_SIMULATION);
         executionRequest.setModelType(ExecutionRequest.ModelType.SPN);
-        executionRequest.setError(0.1);
+        executionRequest.setError(0.01);
         executionRequest.setMaxExecutionTimeInMinutes(0);
-        executionRequest.setMetrics(Arrays.asList("Metric0"));
+        executionRequest.setMetrics(Arrays.asList("MRT"));
 
         HashMap<String,Double> variables2= new HashMap<>();
-        variables2.put("def1",30.0);
-        variables2.put("def2",150.0);
+        variables2.put("EXTRA_CAP",10.);
+        variables2.put("C",20.);
+        variables2.put("AD",6.);
         ExecutionRequest executionRequest2= new ExecutionRequest();
         executionRequest2.setConfigId("configB");
         executionRequest2.setModel(model);
         executionRequest2.setVariables(variables2);
         executionRequest2.setExecutionType(ExecutionRequest.ExecutionType.STATIONARY_SIMULATION);
         executionRequest2.setModelType(ExecutionRequest.ModelType.SPN);
-        executionRequest2.setError(0.1);
+        executionRequest2.setError(0.01);
         executionRequest2.setMaxExecutionTimeInMinutes(0);
-        executionRequest2.setMetrics(Arrays.asList("Metric0"));
+        executionRequest2.setMetrics(Arrays.asList("MRT"));
 
 
         List<ExecutionRequest> batch1 = Arrays.asList(executionRequest,executionRequest2);
@@ -43,7 +45,10 @@ public class Main {
         Map<ExecutionRequest,ExecutionResponse> responses =    producer.sendRequestsAndAwait(batch1,"fila.fast");
         for (ExecutionRequest executionRequest1: batch1) {
             ExecutionResponse result = responses.get(executionRequest1);
-            System.out.println(executionRequest1.getConfigId()+" -- "+responses.get(executionRequest1).getMetricValues().get("Metric0"));
+            for(String metric:result.getMetricValues().keySet()){
+                System.out.println(executionRequest1.getConfigId()+":"+metric+":"+result.getMetricValues().get(metric));
+            }
+
         }
 
         //assincrono
