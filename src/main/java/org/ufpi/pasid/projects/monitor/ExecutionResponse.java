@@ -1,5 +1,4 @@
-package org.ufpi.digitalTwin;
-
+package org.ufpi.pasid.projects.monitor;
 
 import java.util.HashMap;
 
