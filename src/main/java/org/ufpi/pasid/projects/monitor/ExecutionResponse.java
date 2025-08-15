@@ -1,10 +1,12 @@
-package org.ufpi.pasid.projects.monitor;
+package org.ufpi.digitalTwin;
+
 
 import java.util.HashMap;
 
 public class ExecutionResponse {
     private String configId;
     private HashMap <String,Double> metricValues;
+    private String error;
 
     public String getConfigId() {
         return configId;
@@ -20,5 +22,13 @@ public class ExecutionResponse {
 
     public void setMetricValues(HashMap<String, Double> metricValues) {
         this.metricValues = metricValues;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 }
