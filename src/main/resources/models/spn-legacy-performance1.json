@@ -1,0 +1,302 @@
+{
+  "modelName": "performance1_norm_trab2",
+  "places": [
+    {
+      "name": "P0",
+      "initialMarking": 0,
+      "stringMarking": "QUEUE_USED",
+      "initialStringMarking": "QUEUE_USED"
+    },
+    {
+      "name": "P1",
+      "initialMarking": 0,
+      "stringMarking": "SERVERS_PROCESSING",
+      "initialStringMarking": "SERVERS_PROCESSING"
+    },
+    {
+      "name": "P2",
+      "initialMarking": 1,
+      "stringMarking": "SERVERS_ON",
+      "initialStringMarking": "SERVERS_ON"
+    },
+    {
+      "name": "P3",
+      "initialMarking": 100,
+      "stringMarking": "QUEUE",
+      "initialStringMarking": "QUEUE"
+    },
+    {
+      "name": "P4",
+      "initialMarking": 0,
+      "stringMarking": "0",
+      "initialStringMarking": "0"
+    },
+    {
+      "name": "P5",
+      "initialMarking": 1,
+      "stringMarking": "1",
+      "initialStringMarking": "1"
+    },
+    {
+      "name": "P6",
+      "initialMarking": 0,
+      "stringMarking": "NEW_SERVERS",
+      "initialStringMarking": "NEW_SERVERS"
+    }
+  ],
+  "definitions": [
+    {
+      "name": "ARRIVAL_TIME",
+      "type": "DOUBLE",
+      "value": "2"
+    },
+    {
+      "name": "QUEUE",
+      "type": "INTEGER",
+      "value": "100.0"
+    },
+    {
+      "name": "INSTANTIATION_TIME",
+      "type": "DOUBLE",
+      "value": "0.01"
+    },
+    {
+      "name": "SERVER_TIME",
+      "type": "DOUBLE",
+      "value": "2"
+    },
+    {
+      "name": "SERVERS_ON",
+      "type": "INTEGER",
+      "value": "1.0"
+    },
+    {
+      "name": "NEW_SERVERS",
+      "type": "INTEGER",
+      "value": "0.0"
+    },
+    {
+      "name": "SERVERS_PROCESSING",
+      "type": "INTEGER",
+      "value": "0.0"
+    },
+    {
+      "name": "QUEUE_USED",
+      "type": "INTEGER",
+      "value": "0.0"
+    },
+    {
+      "name": "QUEUE_PER_MEM",
+      "type": "INTEGER",
+      "value": "20.0"
+    },
+    {
+      "name": "ARRIVAL_TIME_SD",
+      "type": "DOUBLE",
+      "value": "0.001"
+    },
+    {
+      "name": "SERVER_TIME_SD",
+      "type": "DOUBLE",
+      "value": "0.001"
+    }
+  ],
+  "rewardMeasures": [
+    {
+      "name": "USED_PODS",
+      "expression": "(E{#P1})+(E{#P2})+(E{#P6})"
+    },
+    {
+      "name": "TP",
+      "expression": "(E{#P1})/SERVER_TIME"
+    },
+    {
+      "name": "RT",
+      "expression": "(((E{#P4})+(E{#P0})+(E{#P1}))*(SERVER_TIME))/(E{#P1})"
+    },
+    {
+      "name": "TOTAL_JOBS",
+      "expression": "((E{#P4})+(E{#P0})+(E{#P1}))"
+    },
+    {
+      "name": "PROCESS_JOBS",
+      "expression": "(E{#P1})"
+    }
+  ],
+  "transitions": [
+    {
+      "name": "TE0",
+      "type": "TIMED",
+      "firingPolicy": "INFINITY_SERVER",
+      "raceType": "RACE_WITH_ENABLING_MEMORY",
+      "priority": 1,
+      "distribution": {
+        "type": "Normal",
+        "parameters": {
+          "Average": "SERVER_TIME",
+          "Standard Deviation": "SERVER_TIME_SD"
+        }
+      },
+      "inputArcs": [
+        {
+          "type": "INPUT",
+          "place": "P1",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "outputArcs": [
+        {
+          "type": "OUTPUT",
+          "place": "P2",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "inhibitorArcs": []
+    },
+    {
+      "name": "TI0",
+      "type": "IMMEDIATE",
+      "firingPolicy": "SINGLE_SERVER",
+      "raceType": "RACE_WITH_ENABLING_MEMORY",
+      "priority": 1,
+      "weight": 1.0,
+      "inputArcs": [
+        {
+          "type": "INPUT",
+          "place": "P0",
+          "multiplicity": 1,
+          "weight": 1
+        },
+        {
+          "type": "INPUT",
+          "place": "P2",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "outputArcs": [
+        {
+          "type": "OUTPUT",
+          "place": "P3",
+          "multiplicity": 1,
+          "weight": 1
+        },
+        {
+          "type": "OUTPUT",
+          "place": "P1",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "inhibitorArcs": []
+    },
+    {
+      "name": "TI2",
+      "type": "IMMEDIATE",
+      "firingPolicy": "SINGLE_SERVER",
+      "raceType": "RACE_WITH_ENABLING_MEMORY",
+      "priority": 1,
+      "weight": 1.0,
+      "inputArcs": [
+        {
+          "type": "INPUT",
+          "place": "P4",
+          "multiplicity": 1,
+          "weight": 1
+        },
+        {
+          "type": "INPUT",
+          "place": "P3",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "outputArcs": [
+        {
+          "type": "OUTPUT",
+          "place": "P0",
+          "multiplicity": 1,
+          "weight": 1
+        },
+        {
+          "type": "OUTPUT",
+          "place": "P5",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "inhibitorArcs": []
+    },
+    {
+      "name": "TE1",
+      "type": "TIMED",
+      "firingPolicy": "SINGLE_SERVER",
+      "raceType": "RACE_WITH_ENABLING_MEMORY",
+      "priority": 1,
+      "distribution": {
+        "type": "Normal",
+        "parameters": {
+          "Average": "ARRIVAL_TIME",
+          "Standard Deviation": "ARRIVAL_TIME_SD"
+        }
+      },
+      "inputArcs": [
+        {
+          "type": "INPUT",
+          "place": "P5",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "outputArcs": [
+        {
+          "type": "OUTPUT",
+          "place": "P4",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "inhibitorArcs": []
+    },
+    {
+      "name": "TE2",
+      "type": "TIMED",
+      "firingPolicy": "INFINITY_SERVER",
+      "raceType": "RACE_WITH_ENABLING_MEMORY",
+      "priority": 1,
+      "distribution": {
+        "type": "Exponential",
+        "parameters": {
+          "Mean delay": "INSTANTIATION_TIME"
+        }
+      },
+      "inputArcs": [
+        {
+          "type": "INPUT",
+          "place": "P6",
+          "multiplicity": 1,
+          "weight": 1
+        }
+      ],
+      "outputArcs": [
+        {
+          "type": "OUTPUT",
+          "place": "P2",
+          "multiplicity": 1,
+          "weight": 1
+        },
+        {
+          "type": "OUTPUT",
+          "place": "P3",
+          "multiplicity": 1,
+          "multiplicityExpression": "QUEUE_PER_MEM",
+          "weight": 1,
+          "weightExpression": "QUEUE_PER_MEM"
+        }
+      ],
+      "inhibitorArcs": []
+    }
+  ]
+}
