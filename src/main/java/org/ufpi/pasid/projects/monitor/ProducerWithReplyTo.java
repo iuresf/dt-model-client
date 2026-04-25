@@ -21,6 +21,8 @@ public class ProducerWithReplyTo {
     private static final int HANDSHAKE_TIMEOUT_MS = Integer.parseInt(System.getenv().getOrDefault("RABBITMQ_HANDSHAKE_TIMEOUT_MS", "30000"));
     private static final int PREFETCH = Integer.parseInt(System.getenv().getOrDefault("RABBITMQ_PREFETCH", "20"));
     private static final int AWAIT_TIMEOUT_SEC = Integer.parseInt(System.getenv().getOrDefault("RABBITMQ_AWAIT_TIMEOUT_SEC", "120"));
+    private static final String MERCURY_QUEUE = System.getenv().getOrDefault("MERCURY_QUEUE_NAME", "fila.fast");
+    private static final String NEW_ENGINE_QUEUE = System.getenv().getOrDefault("NEW_ENGINE_QUEUE_NAME", "fila.newengine.fast");
 
     private static final Gson gson = new Gson();
     public final Map<String, BatchResult> batchResults = new ConcurrentHashMap<>();
@@ -62,6 +64,14 @@ public class ProducerWithReplyTo {
         return sendRequestsAndAwait(Collections.singletonList(request), queueName);
     }
 
+    public Map<ExecutionRequest, ExecutionResponse> sendRequestAndAwait(ExecutionRequest request) {
+        return sendRequestsAndAwait(Collections.singletonList(request), null);
+    }
+
+    public Map<ExecutionRequest, ExecutionResponse> sendRequestsAndAwait(List<ExecutionRequest> requests) {
+        return sendRequestsAndAwait(requests, null);
+    }
+
     public Map<ExecutionRequest, ExecutionResponse> sendRequestsAndAwait(List<ExecutionRequest> requests, String queueName) {
         Map<ExecutionRequest, ExecutionResponse> requestToResponse = new ConcurrentHashMap<>();
 
@@ -81,9 +91,6 @@ public class ProducerWithReplyTo {
 
                 // Prefetch (opcional, ajuda a evitar explosão de entregas)
                 channel.basicQos(PREFETCH);
-
-                // Declara fila de requisição (durable)
-                channel.queueDeclare(queueName, true, false, false, null);
 
                 // Cria fila de resposta exclusiva e auto-delete (RPC pattern)
                 // O nome é gerado pelo broker; o auto-recovery irá re-declarar após reconexão.
@@ -115,6 +122,7 @@ public class ProducerWithReplyTo {
                 // Publica todas as mensagens
                 for (ExecutionRequest req : requests) {
                     String correlationId = UUID.randomUUID().toString();
+                    String targetQueue = resolveQueueName(req, queueName);
 
                     AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
                             .replyTo(replyQueue)
@@ -122,9 +130,10 @@ public class ProducerWithReplyTo {
                             .build();
 
                     String message = gson.toJson(req);
-                    channel.basicPublish("", queueName, props, message.getBytes(StandardCharsets.UTF_8));
+                    channel.queueDeclare(targetQueue, true, false, false, null);
+                    channel.basicPublish("", targetQueue, props, message.getBytes(StandardCharsets.UTF_8));
                     correlationToRequest.put(correlationId, req);
-                    System.out.println("[✓] Mensagem publicada para modelo " + req.getModel());
+                    System.out.println("[✓] Mensagem publicada para modelo " + req.getModel() + " na fila " + targetQueue);
                 }
 
                 // Espera respostas com timeout para nunca travar a thread
@@ -148,6 +157,17 @@ public class ProducerWithReplyTo {
         }
 
         return requestToResponse;
+    }
+
+    private String resolveQueueName(ExecutionRequest request, String queueNameOverride) {
+        if (queueNameOverride != null && !queueNameOverride.isBlank()) {
+            return queueNameOverride;
+        }
+        ExecutionRequest.Engine engine = request.getEngine();
+        if (engine == null || engine == ExecutionRequest.Engine.MERCURY) {
+            return MERCURY_QUEUE;
+        }
+        return NEW_ENGINE_QUEUE;
     }
 
     public static class BatchResult {

@@ -34,5 +34,15 @@ build/
 ### VS Code ###
 .vscode/
 
+### AI tools ###
+.aider*
+.claude/
+.codex/
+.continue/
+.cursor/
+.cursorrules
+.roo/
+.windsurf/
+
 ### Mac OS ###
 .DS_Store
